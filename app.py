@@ -164,7 +164,7 @@ with reiter[0]:
     pp = r1.slider(L.t("r_pp"), 1, 20, 5, help=L.t("r_pp_hilfe"))
     euro = r2.number_input(L.t("r_euro"), 0.0, 100.0, 10.0, step=1.0, help=L.t("r_euro_hilfe"))
     minuten = r2.slider(L.t("r_min"), 1, 15, 3)
-    zusaetzlich = n60 * pp / 100
+    zusaetzlich = round(n60 * pp / 100)   # ganze Patienten, damit € = Patienten × Vergütung aufgeht
     st.markdown(ui.ergebnisse([
         (L.zahl(zusaetzlich, 0), L.t("r_zus")),
         (f"{L.zahl(zusaetzlich * euro, 0)} €", L.t("r_umsatz")),
