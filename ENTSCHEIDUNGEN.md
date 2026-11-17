@@ -205,3 +205,15 @@ Rat aus drei Haltungen eines Modells (Skeptiker, Praxis-Fachperson, Recruiter-Si
 4. Sprachschalter DE/EN oben statt in der Seitenleiste; Fußzeile „So ist es gebaut“ mit Technik und Links (GitHub, LinkedIn). Homepage-Link folgt, sobald sie online ist.
 
 **Bewusst gelassen:** Plotly, Login, echter SMS-Versand. Demo-Tour (Punkt 5) ist optional für später.
+
+## Runde 5 – Demo-Tour und Veröffentlichung (17.11.2026)
+
+Rat aus drei Haltungen eines Modells; Einigkeit zählt nur eingeschränkt.
+
+| Sitz | Position | Konfidenz |
+|---|---|---|
+| A Skeptiker | Keine Autoplay-Animation (in Streamlit fehleranfällig); Klick-Tour in einem Dialog, nur echte App-Daten | 0,75 |
+| B Praxis-Fachperson | Ein konkreter Beispielpatient ab 60 mit SMS-Einwilligung; Nachricht ohne irreführendes Datum bei nie dokumentierter Impfung | 0,75 |
+| C Recruiter-Sicht | Direktlink `?demo=1`, damit Besucher von LinkedIn sofort in der Tour landen; ein Titelbild für LinkedIn/GitHub/Homepage | 0,75 |
+
+**Umgesetzt (Konfidenz 0,75):** Dialog „Demo in 30 Sekunden“ mit 4 Schritten (Erkennen, Anzeigen, Erinnern, Messen), Knopf unter den Kennzahlen und Start per `?demo=1`. Gefundener Fehler: Bei nie dokumentierter Impfung nannte die Nachricht das Datum des 18./60. Geburtstags; jetzt „keine aktuelle Impfung dokumentiert“ (Test ergänzt). Titelbild `assets/titelbild.png` (1280×640) aus den App-Bausteinen gerendert.

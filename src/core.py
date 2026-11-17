@@ -175,7 +175,11 @@ def faelligkeiten(conn: sqlite3.Connection, stichtag: date, vorlauf_tage: int = 
 def nachricht(vorname: str, nachname: str, impfung: str, faellig_am: date,
               stichtag: date) -> str:
     datum = faellig_am.strftime("%d.%m.%Y")
-    if faellig_am < stichtag:
+    if faellig_am < stichtag - timedelta(days=365):
+        # Lange überfällig heißt meist: nie dokumentiert. Ein Datum wie der 18. Geburtstag
+        # wäre für Patienten irreführend, daher ohne Datum.
+        kern = f"ist bei uns keine aktuelle Impfung gegen {impfung} dokumentiert"
+    elif faellig_am < stichtag:
         kern = f"ist Ihre Impfung gegen {impfung} seit {datum} fällig"
     else:
         kern = f"läuft Ihr Impfschutz gegen {impfung} am {datum} ab"

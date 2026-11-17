@@ -115,3 +115,8 @@ def test_nachricht_ohne_diagnose():
     text = core.nachricht("Anna", "Müller", "Tetanus/Diphtherie", date(2027, 1, 5), STICHTAG)
     assert "05.01.2027" in text and "Termin" in text
     assert len(text) < 200
+
+
+def test_nachricht_ohne_irrefuehrendes_altes_datum():
+    text = core.nachricht("Anna", "Müller", "Pneumokokken", date(1990, 4, 3), STICHTAG)
+    assert "1990" not in text and "keine aktuelle Impfung gegen Pneumokokken" in text

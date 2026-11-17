@@ -75,7 +75,7 @@ def pass_zeilen(eintraege: pd.DataFrame) -> list[dict]:
         fmt = L.datumsformat()
         zeilen.append(dict(
             impfung=L.impfung(r.impfung), hinweis=L.hinweis(r.impfung, r.hinweis), status=r.status,
-            status_text=L.status(r.status) + (f" · {ende.strftime(fmt)}" if ende is not None and
+            status_text=L.status(r.status) + (f" · {ende.strftime(fmt)}" if ende is not None and start is not None and
                                               r.status != "erledigt" else ""),
             anteil=anteil, start_t=start.strftime(fmt) if start is not None else L.t("pass_nie"),
             ende_t=ende.strftime(fmt) if ende is not None else ""))
@@ -160,7 +160,8 @@ def popup_demo():
     elif i == 2:
         st.markdown(f"#### {L.t('d3_t')}")
         st.write(L.t("d3", kanal=L.kanal(p["einwilligung"]), tage=core.SPERRFRIST_TAGE))
-        erste = faellig[faellig["patient_id"] == pid].sort_values("faellig_am").iloc[0]
+        # jüngste Fälligkeit zeigen (z. B. Grippe dieser Saison) – anschaulicher als eine alte Lücke
+        erste = faellig[faellig["patient_id"] == pid].sort_values("faellig_am").iloc[-1]
         vorname, nachname = p["name"].split(" ", 1)
         st.markdown(ui.box(core.nachricht(vorname, nachname, erste["impfung"], erste["faellig_am"],
                                           stichtag), "info", "✉️"), unsafe_allow_html=True)

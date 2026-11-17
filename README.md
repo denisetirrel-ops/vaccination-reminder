@@ -1,6 +1,8 @@
 # 💉 Vaccination Reminder · Impf-Erinnerung
 
-**[English](#english) · [Deutsch](#deutsch)**
+![Vaccination Reminder – digital vaccination record and key figures](assets/titelbild.png)
+
+**▶ [Live app](https://impf-erinnerung.streamlit.app) · [30-second demo](https://impf-erinnerung.streamlit.app/?demo=1) · [English](#english) · [Deutsch](#deutsch)**
 
 > All data is **synthetic**, sending is **simulated**. The vaccination rules are a simplified
 > implementation of the German STIKO recommendations and must be reviewed by a physician
