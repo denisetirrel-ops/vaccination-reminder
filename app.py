@@ -83,7 +83,7 @@ def sende_und_melde(eintraege: pd.DataFrame) -> None:
 # --------------------------------------------------------------------------- Popups
 @st.dialog(L.t("popup_tag_titel"), width="large")
 def popup_tag():
-    st.warning(L.t("demo_hinweis"), icon="🧪")
+    st.markdown(ui.box(L.t("demo_hinweis"), "info", "🧪"), unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
     c1.metric(L.t("ueberfaellig"), int((faellig["status"] == "überfällig").sum()))
     c2.metric(L.t("faellig_in", wochen=vorlauf_wochen), int((faellig["status"] == "bald fällig").sum()))
@@ -102,17 +102,19 @@ def popup_patient(pid: int):
     eintraege = faellig[faellig["patient_id"] == pid]
     p = eintraege.iloc[0]
     st.caption("🧪 " + L.t("demo_kurz"))
-    st.warning(L.t("patient_warnung", name=p["name"], alter=p["alter"], anzahl=len(eintraege)))
+    st.markdown(ui.box(L.t("patient_warnung", name=p["name"], alter=p["alter"], anzahl=len(eintraege)),
+                       "akzent"), unsafe_allow_html=True)
     st.dataframe(anzeige(eintraege)[spalten("impfung", "sp_letzte", "sp_faellig", "status",
                                             "sp_hinweis")],
                  hide_index=True, use_container_width=True)
     if p["einwilligung"] == "keine":
-        st.info(L.t("keine_einwilligung"))
+        st.markdown(ui.box(L.t("keine_einwilligung"), "info"), unsafe_allow_html=True)
         return
     erste = eintraege.sort_values("faellig_am").iloc[0]
     vorname, nachname = p["name"].split(" ", 1)
     st.caption(L.t("vorschau", kanal=L.kanal(p["einwilligung"])))
-    st.info(core.nachricht(vorname, nachname, erste["impfung"], erste["faellig_am"], stichtag))
+    st.markdown(ui.box(core.nachricht(vorname, nachname, erste["impfung"], erste["faellig_am"], stichtag),
+                       "info", "✉️"), unsafe_allow_html=True)
     if L.t("nachricht_sprache"):
         st.caption(L.t("nachricht_sprache"))
     if st.button(L.t("erinnerung_senden"), type="primary"):
@@ -225,7 +227,7 @@ with reiter[4]:
         st.divider()
 
 with reiter[5]:
-    st.info(L.t("regeln_info"))
+    st.markdown(ui.box(L.t("regeln_info"), "info"), unsafe_allow_html=True)
     regeln = core.lade_regeln()
     regeln["hinweis"] = [L.hinweis(i, h) for i, h in zip(regeln["impfung"], regeln["hinweis"])]
     regeln["impfung"] = regeln["impfung"].map(L.impfung)

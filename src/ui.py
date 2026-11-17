@@ -67,6 +67,11 @@ h1,h2,h3{font-family:Geist,Inter,sans-serif!important;letter-spacing:-.02em}
 .stTabs [aria-selected="true"] p{color:#0A2342!important}
 .stTabs [data-baseweb="tab-highlight"],.stTabs [data-baseweb="tab-border"]{display:none}
 [data-testid="stImage"] img,[data-testid="stPyplot"] img{border-radius:16px;border:1px solid var(--stroke)}
+.box{border-radius:14px;padding:12px 16px;margin:6px 0 12px;font-size:14.5px;line-height:1.55;color:#E6EDF6;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015)),#0B2444;border:1px solid var(--stroke)}
+.box b{color:var(--ink)}
+.box.akzent{border-left:3px solid var(--peach);background:linear-gradient(90deg,rgba(246,161,94,.10),rgba(246,161,94,0) 60%),#0B2444}
+.box.info{border-left:3px solid var(--lav)}
 div[data-testid="stDialog"] div[role="dialog"]{background:#0A2342;border:1px solid var(--stroke)}
 </style>
 """
@@ -116,3 +121,11 @@ def ergebnisse(werte: list[tuple[str, str]]) -> str:
     return '<div class="grid3">' + "".join(
         f'<div class="card result"><div class="v">{escape(v)}</div><p>{escape(l)}</p></div>'
         for v, l in werte) + "</div>"
+
+
+def box(text: str, art: str = "info", icon: str = "") -> str:
+    """Hinweiskasten in Homepage-Farben statt st.warning/st.info (gelb/blau passten nicht).
+    art: 'akzent' (Pfirsich-Rand) oder 'info' (Blau-Rand). **fett** wird übernommen."""
+    import re
+    inhalt = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", escape(text)).replace("\n", "<br>")
+    return f'<div class="box {art}">{icon + " " if icon else ""}{inhalt}</div>'
