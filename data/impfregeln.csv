@@ -1,0 +1,8 @@
+impfung,mindestalter,typ,intervall_monate,intervall_monate_ab60,dosen,dosisabstand_monate,nur_bei_indikation,hinweis,quelle,stand
+Tetanus/Diphtherie,18,intervall,120,,1,,0,Nächste Auffrischung einmalig als Tdap (mit Keuchhusten),BMG / STIKO-Impfkalender,2026-11
+Influenza,60,saisonal,,,1,,0,Jährlich im Herbst,BMG / STIKO-Impfkalender,2026-11
+COVID-19,60,saisonal,,,1,,0,Jährlich im Herbst,BMG / STIKO-Impfkalender,2026-11
+Pneumokokken,60,einmalig,,,1,,0,Einmalig; Risikogruppen ggf. weitere Impfungen,BMG / STIKO-Impfkalender,2026-11
+Herpes zoster,60,serie,,,2,2,0,2 Dosen im Abstand von 2-6 Monaten,STIKO-Impfkalender,2026-11
+RSV,75,einmalig,,,1,,0,Einmalig ab 75,STIKO-Impfkalender,2026-11
+FSME,18,intervall,60,36,1,,1,Vereinfacht - Intervall je nach Impfstoff ärztlich prüfen,schutz-impfung-jetzt.de (ab 60: alle 3 Jahre),2026-11
