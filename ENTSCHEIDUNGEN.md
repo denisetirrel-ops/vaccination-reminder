@@ -171,3 +171,19 @@ Kontoinhaberin – das Deploy-Klicken bleibt bei Denise.
 | C – Nutzerin | Umschalter, alles zweisprachig, Repo auf eigenem Account | 0,85 |
 
 Endergebnis Konfidenz **0,8**.
+
+## Runde 3 – Optik, Interaktivität, Nutzen für Praxen (17.11.2026)
+
+Rat aus drei Haltungen eines Modells (Skeptiker, Fachperson Praxis/Daten, spätere Nutzerin bzw. Recruiter). Gleiches Modell, gleiche blinde Flecken – Einigkeit zählt daher nur eingeschränkt.
+
+| Sitz | Position | Konfidenz |
+|---|---|---|
+| A Skeptiker | Dunkles Thema per config.toml und wenig CSS; Nutzen nur mit belegten Zahlen; Rechner mit sichtbar markierten Annahmen; keine Plotly-Umstellung, keine Animationen | 0,70 |
+| B Fachperson | Impflücke je Impfung und Erreichbarkeit (Einwilligung) als Kernzahlen; Vergütung nie als Fakt nennen, sondern als Eingabe | 0,75 |
+| C Nutzerin | In 5 Sekunden verstehen: Startbereich mit Satz, 4 Kennzahlen, „Warum?“ als erster Reiter, Ablauf in 4 Schritten | 0,70 |
+
+**Ergebnis (Konfidenz 0,75):** Look der Homepage (dunkel, Glas-Karten, Blau/Pfirsich, Space Grotesk/Inter/JetBrains Mono), Startbereich mit Kennzahlen inkl. Anteil erreichbarer Patienten, neuer Reiter „Warum?“ mit drei belegten Fakten (RKI-Impfquoten 2024/25, außerbudgetäre Vergütung), Vergleich ohne/mit Tool, Ablauf in 4 Schritten und interaktivem Nutzenrechner mit markierten Annahmen. Diagramme im dunklen Thema, README-Vorschau bleibt hell.
+
+**Bewusst gelassen:** Plotly-Umstellung, Animationen, erfundene Erfolgsquoten oder EBM-Beträge als Fakten.
+
+**Geprüft:** Impfquoten 60+ 2024/25 (Influenza 34 %, Pneumokokken 21 %, Gürtelrose 24 %, COVID-19 ~14 %, WHO/EU-Ziel 75 %) laut RKI, berichtet von PTAheute (17.12.2025) und web.de; außerbudgetäre Vergütung laut Ärzte Zeitung. **Offen für Menschen:** reale Vergütungshöhe je KV-Region.

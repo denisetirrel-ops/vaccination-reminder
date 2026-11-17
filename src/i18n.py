@@ -24,11 +24,62 @@ TEXTE: dict[str, dict[str, str]] = {
                         "Kontaktdaten sind frei erfunden. Es werden keine echten Gesundheitsdaten "
                         "verarbeitet und keine Nachrichten verschickt.",
         "demo_kurz": "Fiktive Person – keine echten Daten.",
+        # Startbereich
+        "hero_kicker": "Portfolio-Prototyp · Hausarztpraxis",
+        "hero_a": "Keine Auffrischung",
+        "hero_b": "mehr verpassen.",
+        "hero_lead": "Das Tool prüft jeden Patienten gegen die STIKO-Regeln, meldet fällige Impfungen "
+                     "per Pop-up und erinnert Patienten mit Einwilligung per SMS oder E-Mail – "
+                     "und misst, wie viele danach einen Termin machen.",
+        "k_ueber": "Impfungen überfällig",
+        "k_bald": "fällig in ≤ {wochen} Wochen",
+        "k_pat": "Patienten betroffen",
+        "k_erreich": "per SMS/E-Mail erreichbar",
+        "pill_demo": "Fiktive Daten",
+        "pill_stiko": "STIKO-Regeln",
+        "pill_dsgvo": "nur mit Einwilligung",
+        # Warum
+        "w_kicker": "Warum Praxen das brauchen",
+        "w_titel": "Impflücken sind Alltag – und kosten Gesundheit und Umsatz.",
+        "f1_wert": "34 %",
+        "f1_text": "der Menschen ab 60 waren 2024/25 gegen Grippe geimpft – der niedrigste Wert seit "
+                   "Beginn der Erfassung. Das Ziel von WHO und EU liegt bei 75 %.",
+        "f2_wert": "21 %",
+        "f2_text": "Impfquote gegen Pneumokokken ab 60 (2024/25). Gürtelrose: 24 %, COVID-19: rund 14 %.",
+        "f3_wert": "außerbudgetär",
+        "f3_text": "Impfungen werden außerhalb des Praxisbudgets vergütet. Jede nachgeholte Impfung "
+                   "ist bessere Versorgung und zusätzlicher Umsatz zugleich.",
+        "quellen": "Quellen: [RKI VacMap](https://www.rki.de/vacmap) · "
+                   "[PTAheute, 17.12.2025 (RKI-Impfquoten)](https://www.ptaheute.de/aktuelles/2025/12/17/impfquoten-wie-immun-ist-deutschland) · "
+                   "[Ärzte Zeitung: Recall statt Impfpflicht](https://www.aerztezeitung.de/Wirtschaft/Recall-statt-Impfpflicht-267668.html)",
+        "ohne_titel": "Ohne Tool",
+        "ohne": "Recall-Listen von Hand ziehen · Patienten einzeln anrufen · Briefe drucken · "
+                "niemand weiß, ob es etwas gebracht hat",
+        "mit_titel": "Mit Impf-Erinnerung",
+        "mit": "Fälligkeiten täglich automatisch · Pop-up beim Aufruf des Patienten · Versand nur mit "
+               "Einwilligung, nie doppelt · Wirkung je Kanal messbar",
+        "ablauf_titel": "So funktioniert es",
+        "s1_t": "Erkennen", "s1": "Regeln nach STIKO prüfen jeden Patienten: Intervall, Saison, Alter, Serie.",
+        "s2_t": "Anzeigen", "s2": "Pop-up mit Tagesübersicht und beim Aufruf eines Patienten.",
+        "s3_t": "Erinnern", "s3": "SMS oder E-Mail – nur mit Einwilligung, keine Diagnosen, 90 Tage Sperrfrist.",
+        "s4_t": "Messen", "s4": "Terminquote je Kanal mit Konfidenzintervall statt Bauchgefühl.",
+        "r_titel": "Was bringt das Ihrer Praxis?",
+        "r_lead": "Beispielrechnung für die jährliche Grippeimpfung – stellen Sie Ihre eigenen Werte ein.",
+        "r_pat": "Patienten ab 60 in Ihrer Praxis",
+        "r_pp": "Mehr Geimpfte durch Erinnerung (Prozentpunkte)",
+        "r_pp_hilfe": "Annahme – keine Studienzahl. Prüfen Sie den Wert später im Reiter „Analyse“.",
+        "r_euro": "Vergütung je Impfung in €",
+        "r_euro_hilfe": "Annahme – je nach KV-Region und Impfvereinbarung verschieden.",
+        "r_min": "Minuten je Erinnerung von Hand (Anruf, Brief)",
+        "r_zus": "zusätzlich geimpfte Patienten pro Saison",
+        "r_umsatz": "zusätzliche Vergütung pro Saison",
+        "r_zeit": "Stunden MFA-Zeit gespart",
+        "r_hinweis": "Beispielrechnung mit Ihren Annahmen, keine Prognose.",
         # Kopf
         "titel": "💉 Impf-Erinnerung",
         "untertitel": "Stichtag {datum} · Regeln nach STIKO-Empfehlungen (vereinfacht, "
                       "ärztlich zu prüfen) · **synthetische Testdaten**",
-        "reiter": "Patient aufrufen|Fällige Impfungen|Versandprotokoll|Analyse|Regeln",
+        "reiter": "Warum?|Patient aufrufen|Fällige Impfungen|Versandprotokoll|Analyse|Regeln",
         # Popups
         "popup_tag_titel": "Tagesübersicht Impfungen",
         "ueberfaellig": "Überfällig",
@@ -108,11 +159,60 @@ TEXTE: dict[str, dict[str, str]] = {
                         "details are made up. No real health data is processed and no messages "
                         "are sent.",
         "demo_kurz": "Fictitious person – no real data.",
+        "hero_kicker": "Portfolio prototype · GP practice",
+        "hero_a": "Never miss",
+        "hero_b": "a booster again.",
+        "hero_lead": "The tool checks every patient against the STIKO rules, flags due vaccinations in "
+                     "a pop-up, reminds consenting patients by text message or email – and measures "
+                     "how many book an appointment afterwards.",
+        "k_ueber": "vaccinations overdue",
+        "k_bald": "due within {wochen} weeks",
+        "k_pat": "patients affected",
+        "k_erreich": "reachable by text/email",
+        "pill_demo": "Fictitious data",
+        "pill_stiko": "STIKO rules",
+        "pill_dsgvo": "consent only",
+        "w_kicker": "Why practices need this",
+        "w_titel": "Vaccination gaps are everyday reality – costing health and revenue.",
+        "f1_wert": "34%",
+        "f1_text": "of people aged 60+ in Germany got a flu shot in 2024/25 – the lowest value since "
+                   "records began. The WHO and EU target is 75%.",
+        "f2_wert": "21%",
+        "f2_text": "pneumococcal vaccination rate at 60+ (2024/25). Shingles: 24%, COVID-19: about 14%.",
+        "f3_wert": "outside budget",
+        "f3_text": "In Germany, vaccinations are paid outside the practice budget. Every catch-up "
+                   "vaccination means better care and extra revenue.",
+        "quellen": "Sources: [RKI VacMap](https://www.rki.de/vacmap) · "
+                   "[PTAheute, 17 Dec 2025 (RKI vaccination rates)](https://www.ptaheute.de/aktuelles/2025/12/17/impfquoten-wie-immun-ist-deutschland) · "
+                   "[Ärzte Zeitung: recall instead of mandates](https://www.aerztezeitung.de/Wirtschaft/Recall-statt-Impfpflicht-267668.html)",
+        "ohne_titel": "Without the tool",
+        "ohne": "Pull recall lists by hand · call patients one by one · print letters · "
+                "nobody knows whether it worked",
+        "mit_titel": "With Vaccination Reminder",
+        "mit": "Due dates found automatically every day · pop-up when a patient is opened · sent only "
+               "with consent, never twice · impact measurable per channel",
+        "ablauf_titel": "How it works",
+        "s1_t": "Detect", "s1": "STIKO-based rules check every patient: interval, season, age, series.",
+        "s2_t": "Show", "s2": "Pop-up with the daily overview and whenever a patient is opened.",
+        "s3_t": "Remind", "s3": "Text or email – consent only, no diagnoses, 90-day block on repeats.",
+        "s4_t": "Measure", "s4": "Booking rate per channel with confidence interval instead of gut feeling.",
+        "r_titel": "What does it bring your practice?",
+        "r_lead": "Example calculation for the yearly flu shot – set your own values.",
+        "r_pat": "Patients aged 60+ in your practice",
+        "r_pp": "More vaccinated thanks to reminders (percentage points)",
+        "r_pp_hilfe": "Assumption, not a study figure. Check it later in the Analysis tab.",
+        "r_euro": "Fee per vaccination in €",
+        "r_euro_hilfe": "Assumption – differs by region and vaccination agreement.",
+        "r_min": "Minutes per manual reminder (call, letter)",
+        "r_zus": "additional patients vaccinated per season",
+        "r_umsatz": "additional fees per season",
+        "r_zeit": "hours of staff time saved",
+        "r_hinweis": "Example calculation based on your assumptions, not a forecast.",
         "titel": "💉 Vaccination Reminder",
         "untertitel": "Reference date {datum} · Rules based on STIKO recommendations (German "
                       "Standing Committee on Vaccination; simplified, to be reviewed by a "
                       "physician) · **synthetic test data**",
-        "reiter": "Open patient|Due vaccinations|Sending log|Analysis|Rules",
+        "reiter": "Why?|Open patient|Due vaccinations|Sending log|Analysis|Rules",
         "popup_tag_titel": "Daily vaccination overview",
         "ueberfaellig": "Overdue",
         "faellig_in": "Due within ≤ {wochen} weeks",

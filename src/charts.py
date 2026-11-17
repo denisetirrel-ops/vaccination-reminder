@@ -20,7 +20,9 @@ from i18n import Sprache  # noqa: E402
 
 PASTELL = {"blau": "#A7C7E7", "rosa": "#F4B6C2", "gruen": "#B5E3C1", "gelb": "#FBE3A1",
            "lila": "#CDB4DB", "grau": "#D9D9D9", "pfirsich": "#FFD1B3"}
-DUNKEL = {"blau": "#3D6C99", "rosa": "#B5536A", "text": "#333333", "grau": "#777777"}
+DUNKEL = {"blau": "#3D6C99", "rosa": "#B5536A", "text": "#333333", "grau": "#777777",
+          "kante": "white", "box": "white", "dichte": "#3D6C99"}
+INNEN = "#1E1B2E"   # Beschriftung auf Pastellflächen – in beiden Themen dunkel
 STATUS_FARBE = {"überfällig": PASTELL["rosa"], "bald fällig": PASTELL["gelb"],
                 "ok": PASTELL["gruen"], "erledigt": PASTELL["blau"]}
 
@@ -28,6 +30,17 @@ plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 10,
                      "axes.spines.top": False, "axes.spines.right": False,
                      "axes.edgecolor": "#BBBBBB", "axes.titleweight": "bold",
                      "axes.titlesize": 12, "figure.dpi": 110})
+
+
+def thema_dunkel() -> None:
+    """Dunkles Thema passend zur Portfolio-Homepage (für die App; README-Vorschau bleibt hell)."""
+    DUNKEL.update({"blau": "#8DBEF2", "rosa": "#F6A15E", "text": "#E8ECF4", "grau": "#A9A5BD",
+                   "kante": "#16152A", "box": "#16152A", "dichte": "#E2C4F2"})
+    plt.rcParams.update({"figure.facecolor": "#16152A", "axes.facecolor": "#16152A",
+                         "savefig.facecolor": "#16152A", "text.color": "#E8ECF4",
+                         "axes.labelcolor": "#C9CFDB", "axes.titlecolor": "#F4F7FB",
+                         "xtick.color": "#A9A5BD", "ytick.color": "#A9A5BD",
+                         "axes.edgecolor": "#3A3850", "legend.labelcolor": "#E8ECF4"})
 
 
 def _zahl_achse(ax, L: Sprache, nachkomma: int = 0) -> None:
@@ -56,7 +69,7 @@ def faellig_nach_monat(df: pd.DataFrame, stichtag: date, L: Sprache, monate: int
                                   gridspec_kw={"width_ratios": [1, 7]})
     for achse, xs, werte, farbe in [(ax0, [0], [ueber], PASTELL["rosa"]),
                                     (ax, range(monate), je_monat.tolist(), PASTELL["blau"])]:
-        balken = achse.bar(xs, werte, color=farbe, edgecolor="white", width=0.7)
+        balken = achse.bar(xs, werte, color=farbe, edgecolor=DUNKEL["kante"], width=0.7)
         oben = max(werte) or 1
         for b, w in zip(balken, werte):
             achse.text(b.get_x() + b.get_width() / 2, b.get_height() + oben * 0.015,
@@ -96,11 +109,11 @@ def status_je_impfung(df: pd.DataFrame, L: Sprache):
     for status in reihenfolge:
         breite = anteil[status].to_numpy()
         ax.barh(namen, breite, left=links, color=STATUS_FARBE[status],
-                edgecolor="white", label=L.status(status))
+                edgecolor=DUNKEL["kante"], label=L.status(status))
         for i, (b, l) in enumerate(zip(breite, links)):
             if b >= 0.10:   # nur Segmente beschriften, die breit genug sind (keine Überlappung)
                 ax.text(l + b / 2, i, f"{L.prozent(b, 0)}\n(n={tab[status].iloc[i]})",
-                        ha="center", va="center", fontsize=8, color=DUNKEL["text"])
+                        ha="center", va="center", fontsize=8, color=INNEN)
         links += breite
     for i, gesamt in enumerate(n):
         bald = tab["bald fällig"].iloc[i]
@@ -130,7 +143,7 @@ def terminquote(quote: pd.DataFrame, L: Sprache, tage: int = 30):
     fig, ax = plt.subplots(figsize=(7.5, 4.6))
     x = np.arange(len(q))
     farben = [PASTELL["lila"], PASTELL["pfirsich"]][:len(q)]
-    ax.bar(x, q["anteil"], color=farben, width=0.55, edgecolor="white")
+    ax.bar(x, q["anteil"], color=farben, width=0.55, edgecolor=DUNKEL["kante"])
     ax.errorbar(x, q["anteil"], yerr=[q["anteil"] - q["ki_u"], q["ki_o"] - q["anteil"]],
                 fmt="none", ecolor=DUNKEL["text"], capsize=6, lw=1.2)
     for xi, r in zip(x, q.itertuples()):
@@ -138,7 +151,7 @@ def terminquote(quote: pd.DataFrame, L: Sprache, tage: int = 30):
                 f"{L.prozent(r.anteil)}\n{L.t('d3_ki')} [{L.prozent(r.ki_u)}; {L.prozent(r.ki_o)}]",
                 ha="left", va="bottom", fontsize=8.5, color=DUNKEL["text"])
         ax.text(xi, 0.02, L.t("d3_von", t=r.termine, n=r.erinnerungen),
-                ha="center", va="bottom", fontsize=8.5, color=DUNKEL["text"])
+                ha="center", va="bottom", fontsize=8.5, color=INNEN)
     ax.set_xticks(x, q["label"])
     ax.set_xlim(-0.5, len(q) - 0.5 + 0.35)
     ax.set_ylim(0, min(1, q["ki_o"].max() + 0.15))
@@ -162,15 +175,15 @@ def altersverteilung(alter: pd.Series, L: Sprache):
     mittel, median = werte.mean(), np.median(werte)
     fig, ax = plt.subplots(figsize=(9, 4.6))
     zaehl, _, balken = ax.hist(werte, bins=np.arange(15, 100, 5), color=PASTELL["blau"],
-                               edgecolor="white")
+                               edgecolor=DUNKEL["kante"])
     for b, z in zip(balken, zaehl):
         if z:
             ax.text(b.get_x() + b.get_width() / 2, z + 0.5, L.zahl(z, 0), ha="center",
                     va="bottom", fontsize=8, color=DUNKEL["text"],
-                    bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.85))
+                    bbox=dict(boxstyle="round,pad=0.15", fc=DUNKEL["box"], ec="none", alpha=0.85))
     xs = np.linspace(15, 100, 300)
     dichte = gaussian_kde(werte)(xs) * len(werte) * 5   # auf Histogramm-Skala (Klassenbreite 5)
-    ax.plot(xs, dichte, color=DUNKEL["blau"], lw=2)
+    ax.plot(xs, dichte, color=DUNKEL["dichte"], lw=2)
     hoehe = max(zaehl.max(), dichte.max())
     for wert, name, farbe, ha in [(mittel, L.t("d4_mittel"), DUNKEL["rosa"], "right"),
                                   (median, L.t("d4_median"), DUNKEL["text"], "left")]:
@@ -182,7 +195,7 @@ def altersverteilung(alter: pd.Series, L: Sprache):
     ax.text(99, hoehe * 1.2, L.t("d4_ab60", anteil=L.prozent(anteil60, 0), n=(werte >= 60).sum()),
             ha="right", va="bottom", fontsize=9, color=DUNKEL["text"])
     ax.text(97, dichte[-60] + hoehe * 0.06, L.t("d4_dichte"), ha="right", fontsize=8.5,
-            color=DUNKEL["blau"])
+            color=DUNKEL["dichte"])
     ax.set_ylim(0, hoehe * 1.3)
     ax.set_xlabel(L.t("d4_x"))
     ax.set_ylabel(L.t("d4_y"))
