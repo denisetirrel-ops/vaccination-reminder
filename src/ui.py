@@ -111,6 +111,10 @@ div[data-testid="stDialog"] div[role="dialog"]{background:#0A2342;border:1px sol
   background:var(--glass);color:var(--ink)!important;text-decoration:none;font-weight:600;font-size:14px}
 .links a:hover{border-color:var(--peach);color:var(--peach)!important}
 .quote{font:700 26px Geist,sans-serif;color:var(--lav)} .quote span{font-size:14px;color:var(--dim);font-weight:500}
+.dots{display:flex;align-items:center;gap:6px;margin:0 0 14px}
+.dots i{width:28px;height:5px;border-radius:99px;background:rgba(255,255,255,.12)}
+.dots i.an{background:var(--peach)} .dots span{margin-left:10px;font:600 11px "Geist Mono",monospace;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 </style>
 """
 
@@ -243,3 +247,9 @@ def fusszeile(titel_: str, text: str, stack: list[str], links: list[tuple[str, s
     l = "".join(f'<a href="{escape(u)}" target="_blank" rel="noopener">{escape(t)}</a>' for t, u in links)
     return (f'<div class="foot"><span class="kicker">{escape(titel_)}</span>'
             f'<p class="lead">{escape(text)}</p><div class="stack">{s}</div><div class="links">{l}</div></div>')
+
+
+def fortschritt(i: int, n: int, text: str) -> str:
+    """Balken-Punkte für die Demo-Tour; Schritte bis einschließlich i leuchten."""
+    return ('<div class="dots">' + "".join(f'<i class="{"an" if k <= i else ""}"></i>' for k in range(n))
+            + f"<span>{escape(text)}</span></div>")

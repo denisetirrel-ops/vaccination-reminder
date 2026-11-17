@@ -131,10 +131,74 @@ def popup_patient(pid: int):
         st.rerun()
 
 
+def _demo_schritt(delta: int) -> None:
+    st.session_state["demo_schritt"] = st.session_state.get("demo_schritt", 0) + delta
+
+
+@st.dialog(L.t("demo_titel"), width="large")
+def popup_demo():
+    """Geführte Tour in 4 Schritten mit den echten (synthetischen) Daten der App."""
+    n_schritte, i = 4, st.session_state.get("demo_schritt", 0)
+    st.markdown(ui.fortschritt(i, n_schritte, L.t("demo_schritt", i=i + 1, n=n_schritte)),
+                unsafe_allow_html=True)
+    ueber = faellig[faellig["status"] == "überfällig"]
+    # Beispielpatient: ab 60, SMS-Einwilligung, möglichst viele Lücken -> zeigt alle Funktionen
+    kandidaten = ueber[(ueber["alter"] >= 60) & (ueber["einwilligung"] == "sms")]
+    pid = (kandidaten if len(kandidaten) else faellig)["patient_id"].value_counts().index[0]
+    p = faellig[faellig["patient_id"] == pid].iloc[0]
+    if i == 0:
+        st.markdown(f"#### {L.t('d1_t')}")
+        st.write(L.t("d1", n=L.zahl(df["patient_id"].nunique(), 0)))
+        st.markdown(ui.kpis([(L.zahl(n_ueber, 0), L.t("d1_a"), "a"),
+                             (L.zahl(len(pat_faellig), 0), L.t("d1_b"), "b"),
+                             (L.prozent(erreichbar, 0), L.t("d1_c"), "")], kompakt=True),
+                    unsafe_allow_html=True)
+    elif i == 1:
+        st.markdown(f"#### {L.t('d2_t')}")
+        st.write(L.t("d2", name=p["name"], alter=p["alter"]))
+        st.markdown(ui.impfpass(pass_zeilen(df[df["patient_id"] == pid])), unsafe_allow_html=True)
+    elif i == 2:
+        st.markdown(f"#### {L.t('d3_t')}")
+        st.write(L.t("d3", kanal=L.kanal(p["einwilligung"]), tage=core.SPERRFRIST_TAGE))
+        erste = faellig[faellig["patient_id"] == pid].sort_values("faellig_am").iloc[0]
+        vorname, nachname = p["name"].split(" ", 1)
+        st.markdown(ui.box(core.nachricht(vorname, nachname, erste["impfung"], erste["faellig_am"],
+                                          stichtag), "info", "✉️"), unsafe_allow_html=True)
+    else:
+        st.markdown(f"#### {L.t('d4_t')}")
+        st.write(L.t("d4"))
+        q = core.terminquote_je_kanal(conn)
+        werte = []
+        for r in q.itertuples():
+            u, o = core.wilson_ki(r.termine, r.erinnerungen)
+            werte.append((L.prozent(r.termine / r.erinnerungen, 1),
+                          L.t("d4_ki", kanal=L.kanal(r.kanal), u=L.prozent(u, 1), o=L.prozent(o, 1)),
+                          "a" if r.kanal == "sms" else "b"))
+        st.markdown(ui.kpis(werte, kompakt=True), unsafe_allow_html=True)
+        st.caption(L.t("d4_fazit"))
+    links, _, rechts = st.columns([1, 2, 1])
+    if i > 0:
+        links.button(L.t("demo_zurueck"), on_click=_demo_schritt, args=(-1,), use_container_width=True)
+    if i < n_schritte - 1:
+        rechts.button(L.t("demo_weiter"), on_click=_demo_schritt, args=(1,), type="primary",
+                      use_container_width=True)
+    elif rechts.button(L.t("demo_ende"), type="primary", use_container_width=True):
+        st.session_state["demo_schritt"] = 0
+        st.rerun()
+
+
 if "meldung" in st.session_state:
     st.toast(st.session_state.pop("meldung"), icon="✉️")
 
-if not st.session_state.get("tagespopup_gezeigt") and len(faellig):
+pat_faellig = faellig.drop_duplicates("patient_id")
+n_ueber = int((faellig["status"] == "überfällig").sum())
+erreichbar = (pat_faellig["einwilligung"] != "keine").mean() if len(pat_faellig) else 0
+
+# ?demo=1 im Link (z. B. von LinkedIn) startet direkt die Tour statt der Tagesübersicht
+if st.query_params.get("demo") == "1" and not st.session_state.get("demo_gezeigt"):
+    st.session_state["demo_gezeigt"] = st.session_state["tagespopup_gezeigt"] = True
+    popup_demo()
+elif not st.session_state.get("tagespopup_gezeigt") and len(faellig):
     st.session_state["tagespopup_gezeigt"] = True
     popup_tag()
 
@@ -142,9 +206,6 @@ if not st.session_state.get("tagespopup_gezeigt") and len(faellig):
 st.markdown(ui.hero(L.t("hero_kicker"), L.t("hero_a"), L.t("hero_b"), L.t("hero_lead"),
                     [L.t("pill_stiko"), L.t("pill_dsgvo"), L.datum(stichtag)], L.t("pill_demo")),
             unsafe_allow_html=True)
-pat_faellig = faellig.drop_duplicates("patient_id")
-n_ueber = int((faellig["status"] == "überfällig").sum())
-erreichbar = (pat_faellig["einwilligung"] != "keine").mean() if len(pat_faellig) else 0
 st.markdown(ui.kpis([
     (L.zahl(n_ueber, 0), L.t("k_ueber") + " · " + L.t(
         "k_ueber_sub", je=L.zahl(n_ueber / max(faellig.loc[faellig["status"] == "überfällig",
@@ -153,6 +214,9 @@ st.markdown(ui.kpis([
     (L.zahl(len(pat_faellig), 0), L.t("k_pat"), ""),
     (L.prozent(erreichbar, 0), L.t("k_erreich"), ""),
 ]), unsafe_allow_html=True)
+if st.button(L.t("demo_knopf"), type="primary"):
+    st.session_state["demo_schritt"] = 0
+    popup_demo()
 st.caption("🧪 " + L.t("demo_hinweis"))
 
 reiter = st.tabs(L.t("reiter").split("|"))
