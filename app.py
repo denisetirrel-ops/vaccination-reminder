@@ -79,6 +79,7 @@ def sende_und_melde(eintraege: pd.DataFrame) -> None:
 # --------------------------------------------------------------------------- Popups
 @st.dialog(L.t("popup_tag_titel"), width="large")
 def popup_tag():
+    st.warning(L.t("demo_hinweis"), icon="🧪")
     c1, c2, c3 = st.columns(3)
     c1.metric(L.t("ueberfaellig"), int((faellig["status"] == "überfällig").sum()))
     c2.metric(L.t("faellig_in", wochen=vorlauf_wochen), int((faellig["status"] == "bald fällig").sum()))
@@ -96,6 +97,7 @@ def popup_tag():
 def popup_patient(pid: int):
     eintraege = faellig[faellig["patient_id"] == pid]
     p = eintraege.iloc[0]
+    st.caption("🧪 " + L.t("demo_kurz"))
     st.warning(L.t("patient_warnung", name=p["name"], alter=p["alter"], anzahl=len(eintraege)))
     st.dataframe(anzeige(eintraege)[spalten("impfung", "sp_letzte", "sp_faellig", "status",
                                             "sp_hinweis")],
@@ -124,6 +126,7 @@ if not st.session_state.get("tagespopup_gezeigt") and len(faellig):
 # --------------------------------------------------------------------------- Inhalt
 st.title(L.t("titel"))
 st.caption(L.t("untertitel", datum=L.datum(stichtag)))
+st.warning(L.t("demo_hinweis"), icon="🧪")
 
 reiter = st.tabs(L.t("reiter").split("|"))
 

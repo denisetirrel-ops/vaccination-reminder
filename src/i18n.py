@@ -20,6 +20,10 @@ TEXTE: dict[str, dict[str, str]] = {
         "vorlauf_hilfe": "So früh vor Ablauf gilt eine Impfung als „bald fällig“.",
         "versand_simuliert": "Versand ist **simuliert** – es werden keine SMS oder E-Mails verschickt.",
         "testdaten_neu": "Testdaten neu erzeugen",
+        "demo_hinweis": "**Demo mit fiktiven Daten:** Alle Patientinnen, Patienten, Impfungen und "
+                        "Kontaktdaten sind frei erfunden. Es werden keine echten Gesundheitsdaten "
+                        "verarbeitet und keine Nachrichten verschickt.",
+        "demo_kurz": "Fiktive Person – keine echten Daten.",
         # Kopf
         "titel": "💉 Impf-Erinnerung",
         "untertitel": "Stichtag {datum} · Regeln nach STIKO-Empfehlungen (vereinfacht, "
@@ -100,6 +104,10 @@ TEXTE: dict[str, dict[str, str]] = {
         "vorlauf_hilfe": "How early before expiry a vaccination counts as “due soon”.",
         "versand_simuliert": "Sending is **simulated** – no text messages or emails are sent.",
         "testdaten_neu": "Regenerate test data",
+        "demo_hinweis": "**Demo with fictitious data:** All patients, vaccinations and contact "
+                        "details are made up. No real health data is processed and no messages "
+                        "are sent.",
+        "demo_kurz": "Fictitious person – no real data.",
         "titel": "💉 Vaccination Reminder",
         "untertitel": "Reference date {datum} · Rules based on STIKO recommendations (German "
                       "Standing Committee on Vaccination; simplified, to be reviewed by a "
