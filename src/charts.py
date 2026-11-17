@@ -34,13 +34,13 @@ plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 10,
 
 def thema_dunkel() -> None:
     """Dunkles Thema passend zur Portfolio-Homepage (für die App; README-Vorschau bleibt hell)."""
-    DUNKEL.update({"blau": "#8DBEF2", "rosa": "#F6A15E", "text": "#E8ECF4", "grau": "#A9A5BD",
-                   "kante": "#16152A", "box": "#16152A", "dichte": "#E2C4F2"})
-    plt.rcParams.update({"figure.facecolor": "#16152A", "axes.facecolor": "#16152A",
-                         "savefig.facecolor": "#16152A", "text.color": "#E8ECF4",
-                         "axes.labelcolor": "#C9CFDB", "axes.titlecolor": "#F4F7FB",
-                         "xtick.color": "#A9A5BD", "ytick.color": "#A9A5BD",
-                         "axes.edgecolor": "#3A3850", "legend.labelcolor": "#E8ECF4"})
+    DUNKEL.update({"blau": "#8DBEF2", "rosa": "#F6A15E", "text": "#E8ECF4", "grau": "#A9B8CC",
+                   "kante": "#0B2444", "box": "#0B2444", "dichte": "#E2C4F2"})
+    plt.rcParams.update({"figure.facecolor": "#0B2444", "axes.facecolor": "#0B2444",
+                         "savefig.facecolor": "#0B2444", "text.color": "#E8ECF4",
+                         "axes.labelcolor": "#C4D0DE", "axes.titlecolor": "#F4F7FB",
+                         "xtick.color": "#A9B8CC", "ytick.color": "#A9B8CC",
+                         "axes.edgecolor": "#2A4466", "legend.labelcolor": "#E8ECF4"})
 
 
 def _zahl_achse(ax, L: Sprache, nachkomma: int = 0) -> None:
