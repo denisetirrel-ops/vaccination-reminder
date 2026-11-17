@@ -84,14 +84,17 @@ def sende_und_melde(eintraege: pd.DataFrame) -> None:
 @st.dialog(L.t("popup_tag_titel"), width="large")
 def popup_tag():
     st.markdown(ui.box(L.t("demo_hinweis"), "info", "🧪"), unsafe_allow_html=True)
-    c1, c2, c3 = st.columns(3)
-    c1.metric(L.t("ueberfaellig"), int((faellig["status"] == "überfällig").sum()))
-    c2.metric(L.t("faellig_in", wochen=vorlauf_wochen), int((faellig["status"] == "bald fällig").sum()))
-    c3.metric(L.t("patienten_betroffen"), faellig["patient_id"].nunique())
-    st.write(L.t("als_naechstes"))
+    st.markdown(ui.kpis([
+        (L.zahl((faellig["status"] == "überfällig").sum(), 0), L.t("ueberfaellig"), "a"),
+        (L.zahl((faellig["status"] == "bald fällig").sum(), 0),
+         L.t("faellig_in", wochen=vorlauf_wochen), "b"),
+        (L.zahl(faellig["patient_id"].nunique(), 0), L.t("patienten_betroffen"), ""),
+    ], kompakt=True), unsafe_allow_html=True)
     naechste = faellig[faellig["status"] == "bald fällig"].sort_values("faellig_am").head(8)
-    st.dataframe(anzeige(naechste)[spalten("sp_name", "impfung", "sp_faellig", "sp_einwilligung")],
-                 hide_index=True, use_container_width=True)
+    st.markdown(ui.liste(L.t("als_naechstes").strip("*: "), [
+        (r.name, L.impfung(r.impfung), pd.Timestamp(r.faellig_am).strftime(L.datumsformat()),
+         L.kanal(r.einwilligung), r.einwilligung != "keine")
+        for r in naechste.itertuples()]), unsafe_allow_html=True)
     if st.button(L.t("alle_erinnern"), type="primary"):
         sende_und_melde(faellig)
         st.rerun()

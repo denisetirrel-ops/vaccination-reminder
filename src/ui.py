@@ -72,6 +72,17 @@ h1,h2,h3{font-family:Geist,Inter,sans-serif!important;letter-spacing:-.02em}
 .box b{color:var(--ink)}
 .box.akzent{border-left:3px solid var(--peach);background:linear-gradient(90deg,rgba(246,161,94,.10),rgba(246,161,94,0) 60%),#0B2444}
 .box.info{border-left:3px solid var(--lav)}
+.kpis.k3{grid-template-columns:repeat(3,1fr);gap:10px}
+.kpis.k3 .kpi{padding:14px 14px}.kpis.k3 .kpi .v{font-size:28px}
+.liste{display:flex;flex-direction:column;gap:8px;margin:6px 0 14px}
+.zeile{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:12px 16px;border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015)),#0B2444;border:1px solid var(--stroke)}
+.zeile .n{font-weight:600;color:var(--ink)} .zeile .i{font-size:13.5px;color:var(--muted)}
+.zeile .d{font:600 13px "Geist Mono",monospace;color:var(--peach);text-align:right}
+.zeile .k{justify-self:end;font:600 11px "Geist Mono",monospace;letter-spacing:.06em;padding:3px 9px;border-radius:999px;
+  border:1px solid rgba(141,190,242,.35);color:var(--lav);background:rgba(141,190,242,.08)}
+.zeile .k.aus{border-color:var(--stroke);color:var(--dim);background:none}
+.liste-t{font:600 12px "Geist Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--lav);margin:6px 0 8px}
 div[data-testid="stDialog"] div[role="dialog"]{background:#0A2342;border:1px solid var(--stroke)}
 </style>
 """
@@ -85,9 +96,9 @@ def hero(kicker: str, a: str, b: str, lead: str, pills: list[str], warn_pill: st
             f'<div class="pills"><span class="pill warn">🧪 {escape(warn_pill)}</span>{p}</div></div>')
 
 
-def kpis(werte: list[tuple[str, str, str]]) -> str:
-    """werte: (Zahl, Beschriftung, Klasse 'a'|'b'|'')"""
-    return '<div class="kpis">' + "".join(
+def kpis(werte: list[tuple[str, str, str]], kompakt: bool = False) -> str:
+    """werte: (Zahl, Beschriftung, Klasse 'a'|'b'|''); kompakt = eine Reihe, z. B. im Pop-up."""
+    return f'<div class="kpis{" k3" if kompakt else ""}">' + "".join(
         f'<div class="kpi {k}"><div class="v">{escape(v)}</div><div class="l">{escape(l)}</div></div>'
         for v, l, k in werte) + "</div>"
 
@@ -129,3 +140,12 @@ def box(text: str, art: str = "info", icon: str = "") -> str:
     import re
     inhalt = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", escape(text)).replace("\n", "<br>")
     return f'<div class="box {art}">{icon + " " if icon else ""}{inhalt}</div>'
+
+
+def liste(titel: str, zeilen: list[tuple[str, str, str, str, bool]]) -> str:
+    """zeilen: (Name, Impfung, Datum, Kanal, erreichbar)"""
+    innen = "".join(
+        f'<div class="zeile"><span class="n">{escape(n)}</span><span class="d">{escape(d)}</span>'
+        f'<span class="i">{escape(i)}</span><span class="k{"" if ok else " aus"}">{escape(k)}</span></div>'
+        for n, i, d, k, ok in zeilen)
+    return f'<div class="liste-t">{escape(titel)}</div><div class="liste">{innen}</div>'
