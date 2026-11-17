@@ -12,7 +12,8 @@ CSS = """
 :root{--ink:#F4F7FB;--muted:#A9A5BD;--dim:#7489A6;--lav:#8DBEF2;--peach:#F6A15E;
   --glass:rgba(255,255,255,.045);--stroke:rgba(255,255,255,.09);
   --grad:linear-gradient(100deg,#8DBEF2 0%,#F6A15E 100%)}
-html,body,[class*="st-"],.stMarkdown,p,li,label{font-family:Inter,"Segoe UI",system-ui,sans-serif}
+html,body,.stMarkdown,p,li,label,input,textarea{font-family:Inter,"Segoe UI",system-ui,sans-serif}
+[data-testid="stIconMaterial"],.material-symbols-rounded{font-family:"Material Symbols Rounded"!important}
 .stApp{background:#0E0D16;
   background-image:radial-gradient(600px 420px at 8% -5%,rgba(141,190,242,.20),transparent 70%),
                    radial-gradient(520px 380px at 95% 0%,rgba(246,161,94,.14),transparent 70%),
