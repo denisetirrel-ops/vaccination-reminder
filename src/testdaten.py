@@ -23,6 +23,10 @@ NACHNAMEN = ["Müller", "Schmidt", "Schneider", "Fischer", "Weber", "Meyer", "Wa
              "Braun", "Zimmermann", "Krüger", "Hartmann", "Lange", "Werner", "Krause", "Peters",
              "Janssen", "Hinrichs", "Ahrens", "Gerdes", "Behrens", "Oltmanns"]
 
+# Zielquoten für Menschen ab 60 (RKI-Impfquotenmonitoring 2024/25, berichtet von PTAheute 12/2025).
+# Die Testdaten werden damit erzeugt; die App zeigt die tatsächlich entstandene Quote daneben.
+RKI = {"Influenza": 0.34, "COVID-19": 0.14, "Pneumokokken": 0.21, "Herpes zoster": 0.24}
+
 
 def _tag(rng: np.random.Generator, von: date, bis: date) -> date:
     return von + timedelta(days=int(rng.integers(0, max((bis - von).days, 1))))
@@ -54,21 +58,23 @@ def erzeuge(pfad: Path = DB_PFAD, n: int = 400, stichtag: date | None = None,
         if rng.random() > 0.07:
             impf("Tetanus/Diphtherie", stichtag - timedelta(days=int(rng.uniform(30, 16 * 365))))
         if alt >= 60:
+            # Quoten an RKI-Impfquotenmonitoring 2024/25 angelehnt (60+): Influenza 34 %,
+            # COVID-19 ~14 %, Pneumokokken 21 %, Herpes zoster (vollständig) 24 %.
             saison = _saisonstart(stichtag)
-            if rng.random() < 0.5:   # Grippe in dieser Saison
+            if rng.random() < RKI["Influenza"]:      # Grippe in dieser Saison
                 impf("Influenza", _tag(rng, saison - timedelta(days=30), stichtag))
-            elif rng.random() < 0.7:  # nur letzte Saison
+            elif rng.random() < 0.4:                  # nur letzte Saison
                 impf("Influenza", _tag(rng, saison - relativedelta(years=1), saison - timedelta(days=270)))
-            if rng.random() < 0.3:
+            if rng.random() < RKI["COVID-19"]:
                 impf("COVID-19", _tag(rng, saison - timedelta(days=30), stichtag))
-            if rng.random() < 0.45:
+            if rng.random() < RKI["Pneumokokken"]:
                 impf("Pneumokokken", _tag(rng, stichtag - relativedelta(years=6), stichtag))
             r = rng.random()
-            if r < 0.4:
+            if r < RKI["Herpes zoster"]:
                 d1 = _tag(rng, stichtag - relativedelta(years=5), stichtag - timedelta(days=200))
                 impf("Herpes zoster", d1)
                 impf("Herpes zoster", d1 + timedelta(days=int(rng.integers(60, 180))))
-            elif r < 0.55:            # nur 1. Dosis -> 2. Dosis fällig
+            elif r < RKI["Herpes zoster"] + 0.06:     # nur 1. Dosis -> 2. Dosis fällig
                 impf("Herpes zoster", _tag(rng, stichtag - timedelta(days=150), stichtag - timedelta(days=20)))
         if alt >= 75 and rng.random() < 0.3:
             impf("RSV", _tag(rng, stichtag - relativedelta(years=2), stichtag))

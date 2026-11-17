@@ -84,6 +84,33 @@ h1,h2,h3{font-family:Geist,Inter,sans-serif!important;letter-spacing:-.02em}
 .zeile .k.aus{border-color:var(--stroke);color:var(--dim);background:none}
 .liste-t{font:600 12px "Geist Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--lav);margin:6px 0 8px}
 div[data-testid="stDialog"] div[role="dialog"]{background:#0A2342;border:1px solid var(--stroke)}
+.pass{display:flex;flex-direction:column;gap:10px;margin:6px 0 14px}
+.pz{display:grid;grid-template-columns:minmax(150px,1.1fr) 2fr 210px;gap:6px 18px;align-items:center;padding:14px 18px;
+  border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015)),#0B2444;border:1px solid var(--stroke)}
+@media(max-width:820px){.pz{grid-template-columns:1fr}}
+.pz .t{font-weight:600;color:var(--ink)} .pz .h{font-size:12.5px;color:var(--dim);margin-top:2px}
+.bahn{position:relative;height:8px;border-radius:99px;background:rgba(255,255,255,.07);margin:16px 0 18px}
+.bahn .f{position:absolute;left:0;top:0;bottom:0;border-radius:99px}
+.bahn .m{position:absolute;top:-5px;width:2px;height:18px;background:var(--ink);border-radius:2px}
+.bahn .a,.bahn .e{position:absolute;top:14px;font:500 11px "Geist Mono",monospace;color:var(--dim);white-space:nowrap}
+.bahn .a{left:0}.bahn .e{right:0}
+.chip{justify-self:end;font:600 11px "Geist Mono",monospace;letter-spacing:.06em;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.chip.ueber{color:var(--peach);border:1px solid rgba(246,161,94,.45);background:rgba(246,161,94,.10)}
+.chip.bald{color:var(--lav);border:1px solid rgba(141,190,242,.4);background:rgba(141,190,242,.08)}
+.chip.ok{color:#9FDCC0;border:1px solid rgba(159,220,192,.35);background:rgba(159,220,192,.07)}
+.chip.fertig{color:var(--muted);border:1px solid var(--stroke)}
+.zeile.v{grid-template-columns:110px 1fr auto auto}
+@media(max-width:820px){.zeile.v{grid-template-columns:1fr auto}}
+.zeile .s{font:500 12.5px "Geist Mono",monospace;color:var(--dim)}
+.mehr{font-size:13px;color:var(--dim);margin:-4px 0 12px}
+.regel .big{font-size:22px!important;color:var(--ink)} .regel .rh{font:600 12px "Geist Mono",monospace;color:var(--peach);margin-bottom:8px}
+.regel small{display:block;color:var(--dim);font-size:12px;margin-top:8px}
+.foot{margin-top:40px;padding-top:22px;border-top:1px solid var(--stroke)}
+.stack{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}
+.links a{display:inline-block;margin:0 8px 8px 0;padding:8px 14px;border-radius:999px;border:1px solid var(--stroke);
+  background:var(--glass);color:var(--ink)!important;text-decoration:none;font-weight:600;font-size:14px}
+.links a:hover{border-color:var(--peach);color:var(--peach)!important}
+.quote{font:700 26px Geist,sans-serif;color:var(--lav)} .quote span{font-size:14px;color:var(--dim);font-weight:500}
 </style>
 """
 
@@ -149,3 +176,70 @@ def liste(titel: str, zeilen: list[tuple[str, str, str, str, bool]]) -> str:
         f'<span class="i">{escape(i)}</span><span class="k{"" if ok else " aus"}">{escape(k)}</span></div>'
         for n, i, d, k, ok in zeilen)
     return f'<div class="liste-t">{escape(titel)}</div><div class="liste">{innen}</div>'
+
+
+STATUS_KLASSE = {"überfällig": "ueber", "bald fällig": "bald", "ok": "ok", "erledigt": "fertig"}
+
+
+def impfpass(zeilen: list[dict]) -> str:
+    """Digitaler Impfpass: je Impfung eine Karte mit Zeitstrahl letzte Dosis -> heute -> fällig.
+    zeilen: dict(impfung, hinweis, status, status_text, start, ende, anteil, start_t, ende_t)
+    anteil: Position von 'heute' zwischen letzter Dosis und Fälligkeit (0..1, None = keine Dosis)."""
+    karten = []
+    for z in zeilen:
+        k = STATUS_KLASSE.get(z["status"], "fertig")
+        farbe = {"ueber": "var(--peach)", "bald": "var(--lav)", "ok": "#9FDCC0", "fertig": "var(--muted)"}[k]
+        anteil = z["anteil"]
+        if anteil is None:
+            bahn = (f'<div class="bahn" style="background:repeating-linear-gradient(90deg,rgba(246,161,94,.25) 0 6px,transparent 6px 12px)">'
+                    f'<span class="a">{escape(z["start_t"])}</span></div>')
+        else:
+            breite = max(min(anteil, 1.0), 0.02) * 100
+            marke = "" if k == "fertig" else f'<span class="m" style="left:{min(breite, 99.5):.1f}%"></span>'
+            bahn = (f'<div class="bahn"><span class="f" style="width:{breite:.1f}%;background:{farbe};opacity:.75"></span>'
+                    f'{marke}<span class="a">{escape(z["start_t"])}</span><span class="e">{escape(z["ende_t"])}</span></div>')
+        karten.append(f'<div class="pz"><div><div class="t">{escape(z["impfung"])}</div>'
+                      f'<div class="h">{escape(z["hinweis"])}</div></div>{bahn}'
+                      f'<span class="chip {k}">{escape(z["status_text"])}</span></div>')
+    return '<div class="pass">' + "".join(karten) + "</div>"
+
+
+def faellig_liste(zeilen: list[tuple[str, str, str, str, str, str, bool]], mehr: str = "") -> str:
+    """zeilen: (Name + Alter, Impfung, Datum, Status, Status-Text, Kanal, erreichbar)"""
+    innen = "".join(
+        f'<div class="zeile"><span class="n">{escape(n)}</span><span class="d">{escape(d)}</span>'
+        f'<span class="i">{escape(i)} · <span class="chip {STATUS_KLASSE.get(s, "fertig")}" '
+        f'style="padding:2px 8px">{escape(st)}</span></span>'
+        f'<span class="k{"" if ok else " aus"}">{escape(k)}</span></div>'
+        for n, i, d, s, st, k, ok in zeilen)
+    return (f'<div class="liste">{innen}</div>' + (f'<div class="mehr">{escape(mehr)}</div>' if mehr else ""))
+
+
+def protokoll(zeilen: list[tuple[str, str, str, str, str]], mehr: str = "") -> str:
+    """zeilen: (Zeitpunkt, Name, Impfung, Kanal, Empfänger)"""
+    innen = "".join(
+        f'<div class="zeile v"><span class="s">{escape(t)}</span><span><span class="n">{escape(n)}</span> '
+        f'<span class="i">· {escape(i)}</span></span><span class="s">{escape(e)}</span>'
+        f'<span class="k">{escape(k)}</span></div>' for t, n, i, k, e in zeilen)
+    return (f'<div class="liste">{innen}</div>' + (f'<div class="mehr">{escape(mehr)}</div>' if mehr else ""))
+
+
+def regeln(eintraege: list[tuple[str, str, str, str]]) -> str:
+    """eintraege: (Impfung, Rhythmus, Hinweis, Quelle)"""
+    return '<div class="grid3">' + "".join(
+        f'<div class="card regel"><div class="big">{escape(i)}</div><div class="rh">{escape(r)}</div>'
+        f'<p>{escape(h)}</p><small>{escape(q)}</small></div>' for i, r, h, q in eintraege) + "</div>"
+
+
+def quoten(eintraege: list[tuple[str, str, str]]) -> str:
+    """eintraege: (Impfung, Quote Testdaten, Text mit RKI-Wert)"""
+    return '<div class="grid4">' + "".join(
+        f'<div class="card"><h4>{escape(i)}</h4><div class="quote">{escape(q)}</div><p>{escape(t)}</p></div>'
+        for i, q, t in eintraege) + "</div>"
+
+
+def fusszeile(titel_: str, text: str, stack: list[str], links: list[tuple[str, str]]) -> str:
+    s = "".join(f'<span class="pill">{escape(x)}</span>' for x in stack)
+    l = "".join(f'<a href="{escape(u)}" target="_blank" rel="noopener">{escape(t)}</a>' for t, u in links)
+    return (f'<div class="foot"><span class="kicker">{escape(titel_)}</span>'
+            f'<p class="lead">{escape(text)}</p><div class="stack">{s}</div><div class="links">{l}</div></div>')

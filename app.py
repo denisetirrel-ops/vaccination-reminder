@@ -33,10 +33,12 @@ def verbindung():
 conn = verbindung()
 
 # --------------------------------------------------------------------------- Seitenleiste
+_, oben = st.columns([5, 1.3])
+code = oben.segmented_control("Sprache · Language", list(SPRACHEN), format_func=str.upper,
+                              default="de", key="sprache", label_visibility="collapsed") or "de"
+L = Sprache(code)
+
 with st.sidebar:
-    code = st.radio("Sprache · Language", list(SPRACHEN), format_func=SPRACHEN.get,
-                    horizontal=True, key="sprache")
-    L = Sprache(code)
     st.header(L.t("einstellungen"))
     stichtag = st.date_input(L.t("stichtag"), value=date.today(),
                              format="DD.MM.YYYY" if code == "de" else "YYYY-MM-DD")
@@ -54,24 +56,30 @@ df = core.faelligkeiten(conn, stichtag, vorlauf_wochen * 7)
 faellig = df[df["status"].isin(core.STATUS_FAELLIG)]
 
 
-def anzeige(tab: pd.DataFrame) -> pd.DataFrame:
-    """Für die Anzeige übersetzen und Datumsspalten formatieren (Daten bleiben unverändert)."""
-    t = tab.copy()
-    for spalte in ("letzte_dosis", "faellig_am"):
-        t[spalte] = pd.to_datetime(t[spalte]).dt.strftime(L.datumsformat()).fillna("–")
-    t["hinweis"] = [L.hinweis(i, h) for i, h in zip(t["impfung"], t["hinweis"])]
-    t["impfung"] = t["impfung"].map(L.impfung)
-    t["status"] = t["status"].map(L.status)
-    t["einwilligung"] = t["einwilligung"].map(L.kanal)
-    return t.rename(columns={"patient_id": L.t("sp_id"), "name": L.t("sp_name"),
-                             "alter": L.t("sp_alter"), "impfung": L.t("impfung"),
-                             "letzte_dosis": L.t("sp_letzte"), "faellig_am": L.t("sp_faellig"),
-                             "status": L.t("status"), "einwilligung": L.t("sp_einwilligung"),
-                             "hinweis": L.t("sp_hinweis")})
-
-
-def spalten(*schluessel: str) -> list[str]:
-    return [L.t(s) for s in schluessel]
+def pass_zeilen(eintraege: pd.DataFrame) -> list[dict]:
+    """Bereitet je Impfung den Zeitstrahl letzte Dosis -> heute -> fällig vor."""
+    heute = pd.Timestamp(stichtag)
+    reihenfolge = {"überfällig": 0, "bald fällig": 1, "ok": 2, "erledigt": 3}
+    zeilen = []
+    for r in eintraege.sort_values("status", key=lambda s: s.map(reihenfolge)).itertuples():
+        start = pd.Timestamp(r.letzte_dosis) if pd.notna(r.letzte_dosis) else None
+        ende = pd.Timestamp(r.faellig_am) if pd.notna(r.faellig_am) else None
+        if r.status == "erledigt":
+            anteil = 1.0
+        elif start is not None and ende is not None and ende > start:
+            anteil = (heute - start) / (ende - start)
+        elif start is None:
+            anteil = None
+        else:
+            anteil = 1.0
+        fmt = L.datumsformat()
+        zeilen.append(dict(
+            impfung=L.impfung(r.impfung), hinweis=L.hinweis(r.impfung, r.hinweis), status=r.status,
+            status_text=L.status(r.status) + (f" · {ende.strftime(fmt)}" if ende is not None and
+                                              r.status != "erledigt" else ""),
+            anteil=anteil, start_t=start.strftime(fmt) if start is not None else L.t("pass_nie"),
+            ende_t=ende.strftime(fmt) if ende is not None else ""))
+    return zeilen
 
 
 def sende_und_melde(eintraege: pd.DataFrame) -> None:
@@ -107,9 +115,7 @@ def popup_patient(pid: int):
     st.caption("🧪 " + L.t("demo_kurz"))
     st.markdown(ui.box(L.t("patient_warnung", name=p["name"], alter=p["alter"], anzahl=len(eintraege)),
                        "akzent"), unsafe_allow_html=True)
-    st.dataframe(anzeige(eintraege)[spalten("impfung", "sp_letzte", "sp_faellig", "status",
-                                            "sp_hinweis")],
-                 hide_index=True, use_container_width=True)
+    st.markdown(ui.impfpass(pass_zeilen(eintraege)), unsafe_allow_html=True)
     if p["einwilligung"] == "keine":
         st.markdown(ui.box(L.t("keine_einwilligung"), "info"), unsafe_allow_html=True)
         return
@@ -137,9 +143,12 @@ st.markdown(ui.hero(L.t("hero_kicker"), L.t("hero_a"), L.t("hero_b"), L.t("hero_
                     [L.t("pill_stiko"), L.t("pill_dsgvo"), L.datum(stichtag)], L.t("pill_demo")),
             unsafe_allow_html=True)
 pat_faellig = faellig.drop_duplicates("patient_id")
+n_ueber = int((faellig["status"] == "überfällig").sum())
 erreichbar = (pat_faellig["einwilligung"] != "keine").mean() if len(pat_faellig) else 0
 st.markdown(ui.kpis([
-    (L.zahl((faellig["status"] == "überfällig").sum(), 0), L.t("k_ueber"), "a"),
+    (L.zahl(n_ueber, 0), L.t("k_ueber") + " · " + L.t(
+        "k_ueber_sub", je=L.zahl(n_ueber / max(faellig.loc[faellig["status"] == "überfällig",
+                                                            "patient_id"].nunique(), 1), 1)), "a"),
     (L.zahl((faellig["status"] == "bald fällig").sum(), 0), L.t("k_bald", wochen=vorlauf_wochen), "b"),
     (L.zahl(len(pat_faellig), 0), L.t("k_pat"), ""),
     (L.prozent(erreichbar, 0), L.t("k_erreich"), ""),
@@ -154,6 +163,14 @@ with reiter[0]:
     st.markdown(ui.karten([(L.t("f1_wert"), L.t("f1_text")), (L.t("f2_wert"), L.t("f2_text")),
                            (L.t("f3_wert"), L.t("f3_text"))]), unsafe_allow_html=True)
     st.caption(L.t("quellen"))
+    st.markdown(ui.titel(L.t("q_titel")), unsafe_allow_html=True)
+    st.write(L.t("q_lead"))
+    ab60_df = df[df["alter"] >= 60]
+    st.markdown(ui.quoten([
+        (L.impfung(i), L.prozent(ab60_df.loc[ab60_df["impfung"] == i, "status"]
+                                 .isin(["ok", "erledigt"]).mean(), 0),
+         L.t("q_text", rki=L.prozent(q, 0)))
+        for i, q in testdaten.RKI.items()]), unsafe_allow_html=True)
     st.markdown(ui.vergleich(L.t("ohne_titel"), L.t("ohne"), L.t("mit_titel"), L.t("mit")),
                 unsafe_allow_html=True)
     st.markdown(ui.titel(L.t("ablauf_titel")), unsafe_allow_html=True)
@@ -184,27 +201,32 @@ with reiter[1]:
                            format_func=dict(zip(patienten["patient_id"], patienten["name"])).get,
                            index=None, placeholder=L.t("name_eingeben"))
     if auswahl is not None:
-        st.dataframe(anzeige(df[df["patient_id"] == auswahl])
-                     [spalten("impfung", "sp_letzte", "sp_faellig", "status", "sp_hinweis")],
-                     hide_index=True, use_container_width=True)
+        st.markdown(f'<div class="liste-t">{L.t("pass_titel")}</div>', unsafe_allow_html=True)
+        st.markdown(ui.impfpass(pass_zeilen(df[df["patient_id"] == auswahl])),
+                    unsafe_allow_html=True)
         if st.session_state.get("aufgerufen") != auswahl:
             st.session_state["aufgerufen"] = auswahl
             if auswahl in set(faellig["patient_id"]):
                 popup_patient(auswahl)
 
 with reiter[2]:
-    c1, c2 = st.columns(2)
-    impf_filter = c1.multiselect(L.t("impfung"), sorted(faellig["impfung"].unique()),
-                                 format_func=L.impfung)
-    status_filter = c2.multiselect(L.t("status"), list(core.STATUS_FAELLIG), format_func=L.status)
+    status_filter = st.pills(L.t("status"), list(core.STATUS_FAELLIG), format_func=L.status,
+                             selection_mode="multi", key="f_status")
+    impf_filter = st.pills(L.t("impfung"), sorted(faellig["impfung"].unique()),
+                           format_func=L.impfung, selection_mode="multi", key="f_impf")
     ansicht = faellig
     if impf_filter:
         ansicht = ansicht[ansicht["impfung"].isin(impf_filter)]
     if status_filter:
         ansicht = ansicht[ansicht["status"].isin(status_filter)]
     st.write(L.t("eintraege", n=len(ansicht), p=ansicht["patient_id"].nunique()))
-    st.dataframe(anzeige(ansicht.sort_values("faellig_am")), hide_index=True,
-                 use_container_width=True)
+    zeige = ansicht.sort_values("faellig_am").head(25)
+    st.markdown(ui.faellig_liste([
+        (f"{r.name} ({r.alter})", L.impfung(r.impfung),
+         pd.Timestamp(r.faellig_am).strftime(L.datumsformat()), r.status, L.status(r.status),
+         L.kanal(r.einwilligung), r.einwilligung != "keine") for r in zeige.itertuples()],
+        L.t("mehr", n=L.zahl(len(ansicht) - len(zeige), 0)) if len(ansicht) > len(zeige) else ""),
+        unsafe_allow_html=True)
     if st.button(L.t("eintraege_erinnern", n=len(ansicht)), disabled=ansicht.empty):
         sende_und_melde(ansicht)
         st.rerun()
@@ -214,14 +236,18 @@ with reiter[3]:
                             "e.impfung, e.kanal, e.empfaenger, e.status, e.nachricht "
                             "FROM erinnerungen e JOIN patienten p USING (patient_id) "
                             "ORDER BY e.gesendet_am DESC LIMIT 500", conn)
-    protokoll["gesendet_am"] = (pd.to_datetime(protokoll["gesendet_am"])
-                                .dt.strftime(L.datumsformat() + " %H:%M"))
-    protokoll["impfung"] = protokoll["impfung"].map(L.impfung)
-    protokoll["kanal"] = protokoll["kanal"].map(L.kanal)
-    st.dataframe(protokoll.rename(columns={
-        "gesendet_am": L.t("sp_gesendet"), "name": L.t("sp_name"), "impfung": L.t("impfung"),
-        "kanal": L.t("sp_kanal"), "empfaenger": L.t("sp_empfaenger"), "status": L.t("status"),
-        "nachricht": L.t("sp_nachricht")}), hide_index=True, use_container_width=True)
+    gesamt = pd.read_sql("SELECT kanal, COUNT(*) AS n FROM erinnerungen GROUP BY kanal", conn)
+    je = dict(zip(gesamt["kanal"], gesamt["n"]))
+    st.markdown(ui.kpis([(L.zahl(sum(je.values()), 0), L.t("proto_kpi_ges"), "a"),
+                         (L.zahl(je.get("sms", 0), 0), L.t("proto_kpi_sms"), "b"),
+                         (L.zahl(je.get("email", 0), 0), L.t("proto_kpi_mail"), "")], kompakt=True),
+                unsafe_allow_html=True)
+    zeige = protokoll.head(40)
+    st.markdown(ui.protokoll([
+        (pd.Timestamp(r.gesendet_am).strftime(L.datumsformat() + " %H:%M"), r.name,
+         L.impfung(r.impfung), L.kanal(r.kanal), r.empfaenger) for r in zeige.itertuples()],
+        L.t("mehr", n=L.zahl(len(protokoll) - len(zeige), 0)) if len(protokoll) > len(zeige) else ""),
+        unsafe_allow_html=True)
 
 with reiter[4]:
     for fig, satz in alle_diagramme(conn, df, stichtag, L).values():
@@ -232,8 +258,26 @@ with reiter[4]:
 with reiter[5]:
     st.markdown(ui.box(L.t("regeln_info"), "info"), unsafe_allow_html=True)
     regeln = core.lade_regeln()
-    regeln["hinweis"] = [L.hinweis(i, h) for i, h in zip(regeln["impfung"], regeln["hinweis"])]
-    regeln["impfung"] = regeln["impfung"].map(L.impfung)
-    st.dataframe(regeln[["impfung", "mindestalter", "typ", "intervall_monate",
-                         "intervall_monate_ab60", "dosen", "hinweis", "quelle", "stand"]],
-                 hide_index=True, use_container_width=True)
+
+    def rhythmus(r) -> str:
+        a = int(r.mindestalter)
+        if r.typ == "intervall":
+            j = L.zahl(r.intervall_monate / 12, 0)
+            text = (L.t("rh_intervall60", j=j, j60=L.zahl(r.intervall_monate_ab60 / 12, 0))
+                    if pd.notna(r.intervall_monate_ab60) else L.t("rh_intervall", j=j, a=a))
+        elif r.typ == "serie":
+            text = L.t("rh_serie", d=int(r.dosen), a=a)
+        else:
+            text = L.t(f"rh_{r.typ}", a=a)
+        return text + (L.t("rh_indikation") if r.nur_bei_indikation else "")
+
+    st.markdown(ui.regeln([(L.impfung(r.impfung), rhythmus(r), L.hinweis(r.impfung, r.hinweis),
+                            f"{r.quelle} · {r.stand}") for r in regeln.itertuples()]),
+                unsafe_allow_html=True)
+
+# --------------------------------------------------------------------------- Fußzeile
+st.markdown(ui.fusszeile(
+    L.t("f_titel"), L.t("f_text"),
+    ["Python", "SQL · SQLite", "pandas", "Streamlit", "matplotlib", "STIKO-Regeln", "Wilson-KI", "pytest"],
+    [(L.t("f_repo"), "https://github.com/denisetirrel-ops/vaccination-reminder"),
+     (L.t("f_linkedin"), "https://www.linkedin.com/in/denise-tirrel/")]), unsafe_allow_html=True)

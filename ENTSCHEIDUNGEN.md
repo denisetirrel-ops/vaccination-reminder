@@ -187,3 +187,21 @@ Rat aus drei Haltungen eines Modells (Skeptiker, Fachperson Praxis/Daten, späte
 **Bewusst gelassen:** Plotly-Umstellung, Animationen, erfundene Erfolgsquoten oder EBM-Beträge als Fakten.
 
 **Geprüft:** Impfquoten 60+ 2024/25 (Influenza 34 %, Pneumokokken 21 %, Gürtelrose 24 %, COVID-19 ~14 %, WHO/EU-Ziel 75 %) laut RKI, berichtet von PTAheute (17.12.2025) und web.de; außerbudgetäre Vergütung laut Ärzte Zeitung. **Offen für Menschen:** reale Vergütungshöhe je KV-Region.
+
+## Runde 4 – Glaubwürdigkeit und Feinschliff (17.11.2026)
+
+Rat aus drei Haltungen eines Modells (Skeptiker, Praxis-Fachperson, Recruiter-Sicht); Einigkeit zählt nur eingeschränkt.
+
+| Sitz | Position | Konfidenz |
+|---|---|---|
+| A Skeptiker | Testdaten an RKI-Quoten anpassen, keine Spielereien | 0,75 |
+| B Praxis-Fachperson | Impfpass mit Zeitstrahl, Standard-Tabellen modernisieren | 0,70 |
+| C Recruiter-Sicht | Sprachschalter oben, Projekt-Steckbrief mit Links, Demo-Tour | 0,70 |
+
+**Umgesetzt (Konfidenz 0,7):**
+1. Testdaten mit den RKI-Quoten 60+ erzeugt (Influenza 34 %, COVID-19 14 %, Pneumokokken 21 %, Herpes zoster 24 %); der Reiter „Warum?“ zeigt die tatsächlich entstandene Quote neben dem RKI-Wert. Abweichungen um wenige Prozentpunkte sind Zufall bei ~200 Patienten ab 60. Kennzahl „überfällig“ zeigt zusätzlich den Schnitt je betroffenem Patient, damit die hohe Gesamtzahl einzuordnen ist.
+2. Digitaler Impfpass: je Impfung Zeitstrahl letzte Dosis → heute → fällig, Status-Chip in Homepage-Farben; im Patienten-Reiter und im Pop-up.
+3. Fällige Impfungen, Versandprotokoll und Regeln als Listen/Karten; Filter als Pills statt Dropdowns.
+4. Sprachschalter DE/EN oben statt in der Seitenleiste; Fußzeile „So ist es gebaut“ mit Technik und Links (GitHub, LinkedIn). Homepage-Link folgt, sobald sie online ist.
+
+**Bewusst gelassen:** Plotly, Login, echter SMS-Versand. Demo-Tour (Punkt 5) ist optional für später.
